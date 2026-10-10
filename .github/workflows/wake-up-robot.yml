@@ -1,0 +1,23 @@
+name: 🤖 Automatic Website Wake-Up Robot
+
+on:
+  schedule:
+    # Runs automatically every 5 minutes in GitHub Actions cloud
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-website:
+    name: Ping & Keep Website Awake
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Wake-up Ping
+        run: |
+          echo "Pinging https://eternal-6.vercel.app at $(date)"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "https://eternal-6.vercel.app")
+          echo "Response HTTP Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 301 ] || [ "$HTTP_STATUS" -eq 308 ]; then
+            echo "✅ Website is awake, healthy and warm!"
+          else
+            echo "⚠️ Warning: Received HTTP Status $HTTP_STATUS"
+          fi
