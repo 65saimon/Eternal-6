@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyAdminAuth } from "@/lib/admin-auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,11 +19,7 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const adminCookie = request.cookies.get("eternal6_admin_token")?.value;
-    const authHeader = request.headers.get("Authorization")?.replace("Bearer ", "");
-    const expectedKey = process.env.ADMIN_KEY || "eternal6_luxury_admin_2026";
-
-    if (adminCookie !== expectedKey && authHeader !== expectedKey) {
+    if (!await verifyAdminAuth(request)) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 

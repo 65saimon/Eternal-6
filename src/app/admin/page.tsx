@@ -29,7 +29,11 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
-  Star
+  Star,
+  User,
+  Lock,
+  ShieldCheck,
+  KeyRound
 } from "lucide-react";
 import { FacebookIcon } from "@/components/ui/SocialIcons";
 
@@ -44,6 +48,19 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
+
+  // Admin Credentials State (Change ID & Password)
+  const [currentAdminId, setCurrentAdminId] = useState("admin");
+  const [credForm, setCredForm] = useState({
+    currentPassword: "",
+    newAdminId: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [credLoading, setCredLoading] = useState(false);
+  const [credSuccess, setCredSuccess] = useState("");
+  const [credError, setCredError] = useState("");
+  const [showCredPassword, setShowCredPassword] = useState(false);
 
   // Product Filters
   const [productSearch, setProductSearch] = useState("");
@@ -105,12 +122,13 @@ export default function AdminDashboardPage() {
     const headers = { Authorization: `Bearer ${key}` };
 
     try {
-      const [ovRes, ordRes, prdRes, bkgRes, stgRes] = await Promise.all([
+      const [ovRes, ordRes, prdRes, bkgRes, stgRes, authRes] = await Promise.all([
         fetch("/api/admin/overview", { headers }),
         fetch("/api/admin/orders", { headers }),
         fetch("/api/admin/products", { headers }),
         fetch("/api/admin/bookings", { headers }),
         fetch("/api/admin/settings", { headers }),
+        fetch("/api/admin/auth", { headers }),
       ]);
 
       if (ovRes.status === 401) {
@@ -118,12 +136,13 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      const [ovData, ordData, prdData, bkgData, stgData] = await Promise.all([
+      const [ovData, ordData, prdData, bkgData, stgData, authData] = await Promise.all([
         ovRes.json(),
         ordRes.json(),
         prdRes.json(),
         bkgRes.json(),
         stgRes.json(),
+        authRes.json().catch(() => ({})),
       ]);
 
       if (ovData.success) setMetrics(ovData.metrics);
@@ -139,6 +158,10 @@ export default function AdminDashboardPage() {
       }
       if (bkgData.success) setBookings(bkgData.bookings);
       if (stgData.success) setSettings(stgData.settings);
+      if (authData?.authenticated && authData?.adminId) {
+        setCurrentAdminId(authData.adminId);
+        setCredForm((prev) => ({ ...prev, newAdminId: authData.adminId }));
+      }
     } catch (err) {
       console.error("Dashboard data load error:", err);
     } finally {
@@ -421,6 +444,72 @@ export default function AdminDashboardPage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // --- CREDENTIALS (CHANGE ID & PASSWORD) ACTION ---
+  const handleChangeCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCredError("");
+    setCredSuccess("");
+
+    if (!credForm.currentPassword) {
+      setCredError("Please enter your current password to authorize changes.");
+      return;
+    }
+
+    if (credForm.newPassword && credForm.newPassword !== credForm.confirmPassword) {
+      setCredError("New password and confirmation password do not match.");
+      return;
+    }
+
+    if (credForm.newPassword && credForm.newPassword.length < 6) {
+      setCredError("New password must be at least 6 characters.");
+      return;
+    }
+
+    setCredLoading(true);
+    const key = getAdminKey();
+
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${key}`,
+        },
+        body: JSON.stringify({
+          currentPassword: credForm.currentPassword,
+          newAdminId: credForm.newAdminId.trim() || undefined,
+          newPassword: credForm.newPassword.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to update administrator credentials.");
+      }
+
+      setCredSuccess(data.message || "Administrator credentials updated successfully!");
+      if (data.adminId) setCurrentAdminId(data.adminId);
+      if (credForm.newPassword) {
+        localStorage.setItem("eternal6_admin_key", credForm.newPassword.trim());
+      }
+      if (credForm.newAdminId) {
+        localStorage.setItem("eternal6_admin_user", credForm.newAdminId.trim());
+      }
+
+      // Reset sensitive fields
+      setCredForm((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+    } catch (err: any) {
+      setCredError(err.message || "Failed to update credentials.");
+    } finally {
+      setCredLoading(false);
     }
   };
 
@@ -1203,104 +1292,237 @@ export default function AdminDashboardPage() {
       )}
 
       {/* ======================================================== */}
-      {/* TAB 5: STORE SETTINGS */}
+      {/* TAB 5: STORE SETTINGS & SECURITY */}
       {/* ======================================================== */}
       {activeTab === "settings" && (
-        <form onSubmit={handleSaveSettings} className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D6B878]/30 shadow-sm space-y-6 max-w-3xl">
-          <div>
-            <h2 className="font-serif-luxury text-xl font-bold text-[#342722]">
-              Atelier & E-Commerce Settings
-            </h2>
-            <p className="text-xs text-[#8C7654]">
-              Control delivery charges, official contact phone numbers, and merchant receiving accounts.
-            </p>
+        <div className="space-y-8 max-w-3xl animate-in fade-in duration-200">
+          {/* CARD 1: STORE & ORDER SETTINGS */}
+          <form onSubmit={handleSaveSettings} className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D6B878]/30 shadow-sm space-y-6">
+            <div>
+              <h2 className="font-serif-luxury text-xl font-bold text-[#342722]">
+                Atelier & E-Commerce Settings
+              </h2>
+              <p className="text-xs text-[#8C7654]">
+                Control delivery charges, official contact phone numbers, and merchant receiving accounts.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Chattogram Delivery Charge (BDT ৳)
+                </label>
+                <input
+                  type="number"
+                  value={settings.chittagong_delivery_charge || "70"}
+                  onChange={(e) => setSettings({ ...settings, chittagong_delivery_charge: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Outside Chattogram Delivery (BDT ৳)
+                </label>
+                <input
+                  type="number"
+                  value={settings.outside_chittagong_delivery_charge || "130"}
+                  onChange={(e) => setSettings({ ...settings, outside_chittagong_delivery_charge: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono font-bold"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Official WhatsApp Number (Button & Hotline)
+                </label>
+                <input
+                  type="text"
+                  value={settings.whatsapp_number || "+880 1606-266496"}
+                  onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Official Boutique Email
+                </label>
+                <input
+                  type="email"
+                  value={settings.email_address || "eternal6six@gmail.com"}
+                  onChange={(e) => setSettings({ ...settings, email_address: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Official bKash Merchant Number
+                </label>
+                <input
+                  type="text"
+                  value={settings.bkash_merchant_number || "01606266496"}
+                  onChange={(e) => setSettings({ ...settings, bkash_merchant_number: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Official Nagad Merchant Number
+                </label>
+                <input
+                  type="text"
+                  value={settings.nagad_merchant_number || "01606266496"}
+                  onChange={(e) => setSettings({ ...settings, nagad_merchant_number: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="px-8 py-3 rounded-full bg-[#342722] hover:bg-[#4A3932] text-[#FFF9F2] text-xs font-bold uppercase tracking-wider transition-colors shadow"
+            >
+              Save Store Settings
+            </button>
+          </form>
+
+          {/* CARD 2: ADMIN CREDENTIALS & SECURITY (CHANGE ID & PASSWORD) */}
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D6B878]/40 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#D6B878]/30 pb-4 gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[#B89A58]" />
+                  <h2 className="font-serif-luxury text-xl font-bold text-[#342722]">
+                    Admin Credentials & Security
+                  </h2>
+                </div>
+                <p className="text-xs text-[#8C7654] mt-1">
+                  Keep your administration dashboard protected. You can change your Admin ID (Username) and Password below.
+                </p>
+              </div>
+              <div className="px-3.5 py-1.5 rounded-full bg-[#FFF9F2] border border-[#D6B878]/40 text-xs text-[#8C7654] flex items-center gap-2 font-mono">
+                <User className="w-3.5 h-3.5 text-[#B89A58]" />
+                <span>Current ID: <strong className="text-[#342722]">{currentAdminId}</strong></span>
+              </div>
+            </div>
+
+            {credSuccess && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
+                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>{credSuccess}</span>
+              </div>
+            )}
+
+            {credError && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-in fade-in">
+                <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                <span>{credError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangeCredentials} className="space-y-4">
+              {/* Admin ID */}
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Admin ID / Username
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C7654]" />
+                  <input
+                    type="text"
+                    required
+                    value={credForm.newAdminId}
+                    onChange={(e) => setCredForm({ ...credForm, newAdminId: e.target.value })}
+                    placeholder="e.g. admin or eternal_director"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs text-[#342722] focus:outline-none focus:border-[#B89A58]"
+                  />
+                </div>
+                <p className="text-[11px] text-[#8C7654] mt-1">
+                  The username you type to log in to the admin panel.
+                </p>
+              </div>
+
+              {/* Current Password */}
+              <div>
+                <label className="text-xs font-semibold text-[#342722] block mb-1">
+                  Current Password <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C7654]" />
+                  <input
+                    type="password"
+                    required
+                    value={credForm.currentPassword}
+                    onChange={(e) => setCredForm({ ...credForm, currentPassword: e.target.value })}
+                    placeholder="Enter current password to authorize changes..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs text-[#342722] focus:outline-none focus:border-[#B89A58]"
+                  />
+                </div>
+              </div>
+
+              {/* New Password & Confirmation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-[#342722] block mb-1">
+                    New Secret Password
+                  </label>
+                  <div className="relative">
+                    <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C7654]" />
+                    <input
+                      type={showCredPassword ? "text" : "password"}
+                      value={credForm.newPassword}
+                      onChange={(e) => setCredForm({ ...credForm, newPassword: e.target.value })}
+                      placeholder="Min 6 characters (leave blank to keep current)"
+                      className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs text-[#342722] focus:outline-none focus:border-[#B89A58]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCredPassword(!showCredPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7654] hover:text-[#342722]"
+                      tabIndex={-1}
+                    >
+                      {showCredPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-[#342722] block mb-1">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C7654]" />
+                    <input
+                      type={showCredPassword ? "text" : "password"}
+                      value={credForm.confirmPassword}
+                      onChange={(e) => setCredForm({ ...credForm, confirmPassword: e.target.value })}
+                      placeholder="Re-type new password..."
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs text-[#342722] focus:outline-none focus:border-[#B89A58]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={credLoading}
+                  className="px-8 py-3.5 rounded-full bg-[#342722] hover:bg-[#4A3932] disabled:opacity-60 text-[#FFF9F2] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
+                >
+                  <KeyRound className="w-4 h-4 text-[#D6B878]" />
+                  {credLoading ? <span>Saving Security Credentials...</span> : <span>Update Admin ID & Password</span>}
+                </button>
+              </div>
+            </form>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-[#342722] block mb-1">
-                Chattogram Delivery Charge (BDT ৳)
-              </label>
-              <input
-                type="number"
-                value={settings.chittagong_delivery_charge || "70"}
-                onChange={(e) => setSettings({ ...settings, chittagong_delivery_charge: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono font-bold"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-[#342722] block mb-1">
-                Outside Chattogram Delivery (BDT ৳)
-              </label>
-              <input
-                type="number"
-                value={settings.outside_chittagong_delivery_charge || "130"}
-                onChange={(e) => setSettings({ ...settings, outside_chittagong_delivery_charge: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono font-bold"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-[#342722] block mb-1">
-                Official WhatsApp Number (Button & Hotline)
-              </label>
-              <input
-                type="text"
-                value={settings.whatsapp_number || "+880 1606-266496"}
-                onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-[#342722] block mb-1">
-                Official Boutique Email
-              </label>
-              <input
-                type="email"
-                value={settings.email_address || "eternal6six@gmail.com"}
-                onChange={(e) => setSettings({ ...settings, email_address: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-[#342722] block mb-1">
-                Official bKash Merchant Number
-              </label>
-              <input
-                type="text"
-                value={settings.bkash_merchant_number || "01606266496"}
-                onChange={(e) => setSettings({ ...settings, bkash_merchant_number: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-[#342722] block mb-1">
-                Official Nagad Merchant Number
-              </label>
-              <input
-                type="text"
-                value={settings.nagad_merchant_number || "01606266496"}
-                onChange={(e) => setSettings({ ...settings, nagad_merchant_number: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6B878]/40 bg-[#FFF9F2] text-xs font-mono"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="px-8 py-3 rounded-full bg-[#342722] hover:bg-[#4A3932] text-[#FFF9F2] text-xs font-bold uppercase tracking-wider transition-colors shadow"
-          >
-            Save All Settings
-          </button>
-        </form>
+        </div>
       )}
 
       {/* ======================================================== */}
