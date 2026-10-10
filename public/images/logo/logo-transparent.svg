@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 90" width="460" height="90" fill="none">
+  <defs>
+    <linearGradient id="goldGradT" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EED59B" />
+      <stop offset="50%" stop-color="#D6B878" />
+      <stop offset="100%" stop-color="#A6823C" />
+    </linearGradient>
+    <linearGradient id="pearlGradT" x1="20%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#FAF5EE" />
+      <stop offset="80%" stop-color="#DFD5C4" />
+      <stop offset="100%" stop-color="#B8A892" />
+    </linearGradient>
+  </defs>
+
+  <!-- 6-Petal Eternal Emblem -->
+  <g transform="translate(45, 45)">
+    <g stroke="url(#goldGradT)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M 0 -8 C -14 -22, -20 -34, 0 -34 C 20 -34, 14 -22, 0 -8 Z" />
+      <path d="M 0 -8 C -14 -22, -20 -34, 0 -34 C 20 -34, 14 -22, 0 -8 Z" transform="rotate(60)" />
+      <path d="M 0 -8 C -14 -22, -20 -34, 0 -34 C 20 -34, 14 -22, 0 -8 Z" transform="rotate(120)" />
+      <path d="M 0 -8 C -14 -22, -20 -34, 0 -34 C 20 -34, 14 -22, 0 -8 Z" transform="rotate(180)" />
+      <path d="M 0 -8 C -14 -22, -20 -34, 0 -34 C 20 -34, 14 -22, 0 -8 Z" transform="rotate(240)" />
+      <path d="M 0 -8 C -14 -22, -20 -34, 0 -34 C 20 -34, 14 -22, 0 -8 Z" transform="rotate(300)" />
+    </g>
+    <circle cx="0" cy="0" r="10" stroke="url(#goldGradT)" stroke-width="1.2" stroke-dasharray="1.5 2.5" fill="none"/>
+    <circle cx="0" cy="0" r="7.5" fill="url(#pearlGradT)"/>
+    <ellipse cx="-2.5" cy="-2.5" rx="2" ry="1.2" fill="#FFFFFF" opacity="0.95" transform="rotate(-30, -2.5, -2.5)"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="105" y="44" font-family="'Cinzel', 'Playfair Display', 'Bodoni MT', serif" font-size="28" font-weight="600" fill="#2E221D" letter-spacing="3.5">ETERNAL <tspan fill="url(#goldGradT)">6</tspan></text>
+
+  <g fill="#7A664B">
+    <line x1="108" y1="62" x2="160" y2="62" stroke="url(#goldGradT)" stroke-width="0.8" opacity="0.7"/>
+    <circle cx="165" cy="62" r="1.5" fill="url(#pearlGradT)"/>
+    <text x="175" y="65" font-family="'Montserrat', 'Inter', sans-serif" font-size="9" font-weight="500" letter-spacing="5" text-anchor="start">TIMELESS ELEGANCE</text>
+    <circle cx="342" cy="62" r="1.5" fill="url(#pearlGradT)"/>
+    <line x1="347" y1="62" x2="399" y2="62" stroke="url(#goldGradT)" stroke-width="0.8" opacity="0.7"/>
+  </g>
+</svg>

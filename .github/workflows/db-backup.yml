@@ -1,0 +1,38 @@
+name: Supabase Scheduled Database Backup
+
+on:
+  schedule:
+    # Runs daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  backup:
+    name: Execute pg_dump & Archive
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Perform pg_dump Backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_DIRECT_URL }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="backup_quantrix_${TIMESTAMP}.sql.gz"
+          mkdir -p backups
+          echo "Dumping database schema and data..."
+          pg_dump "$DATABASE_URL" --no-owner --no-acl --clean --if-exists | gzip > "backups/${BACKUP_FILE}"
+          echo "Backup generated: ${BACKUP_FILE} ($(du -h backups/${BACKUP_FILE} | cut -f1))"
+
+      - name: Upload Backup Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-database-backup
+          path: backups/
+          retention-days: 30

@@ -1,0 +1,368 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Eternal 6 Daylight Luxury Palette */
+  --pearl-ivory: #FFF9F2;
+  --warm-ivory: #F4EBDD;
+  --champagne-gold: #D6B878;
+  --metallic-gold: #B89A58;
+  --warm-beige: #E7D8C5;
+  --deep-espresso: #342722;
+  --pure-white: #FFFFFF;
+  --gold-accent: #C4A45D;
+  --moti-shine: rgba(255, 255, 255, 0.85);
+
+  --background: var(--pearl-ivory);
+  --foreground: var(--deep-espresso);
+  --card-bg: #FFFFFF;
+  --card-border: rgba(214, 184, 120, 0.3);
+}
+
+.dark {
+  /* Eternal 6 Evening Noir Palette */
+  --pearl-ivory: #140F0D;
+  --warm-ivory: #1E1612;
+  --champagne-gold: #E5C98E;
+  --metallic-gold: #D6B878;
+  --warm-beige: #2A1F19;
+  --deep-espresso: #FAF5EE;
+  --pure-white: #1A1310;
+  --gold-accent: #E6C88B;
+  --moti-shine: rgba(229, 201, 142, 0.4);
+
+  --background: #120E0C;
+  --foreground: #FAF5EE;
+  --card-bg: #1A1310;
+  --card-border: rgba(214, 184, 120, 0.22);
+}
+
+@theme {
+  --color-pearl-ivory: #FFF9F2;
+  --color-warm-ivory: #F4EBDD;
+  --color-champagne-gold: #D6B878;
+  --color-metallic-gold: #B89A58;
+  --color-warm-beige: #E7D8C5;
+  --color-deep-espresso: #342722;
+  --color-gold-accent: #C4A45D;
+}
+
+html {
+  scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Luxury Editorial Headings */
+h1, h2, h3, .font-serif-luxury {
+  font-family: "Cinzel", "Playfair Display", "Didot", "Bodoni MT", Georgia, serif;
+}
+
+/* Luxury Card & Glassmorphism */
+.luxury-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(214, 184, 120, 0.28);
+  box-shadow: 0 4px 24px -2px rgba(52, 39, 34, 0.05);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card:hover {
+  border-color: rgba(214, 184, 120, 0.65);
+  box-shadow: 0 12px 36px -4px rgba(214, 184, 120, 0.18), 0 4px 16px -2px rgba(52, 39, 34, 0.06);
+  transform: translateY(-3px);
+}
+
+/* Dark Mode Luxury Card Overrides */
+.dark .luxury-card {
+  background: rgba(26, 19, 16, 0.85);
+  border-color: rgba(214, 184, 120, 0.22);
+  box-shadow: 0 4px 28px -2px rgba(0, 0, 0, 0.5);
+}
+
+.dark .luxury-card:hover {
+  border-color: rgba(214, 184, 120, 0.55);
+  box-shadow: 0 12px 36px -4px rgba(214, 184, 120, 0.15), 0 4px 16px -2px rgba(0, 0, 0, 0.6);
+}
+
+/* Dark Mode Universal Palette Elevators */
+.dark .bg-white {
+  background-color: #1A1310 !important;
+}
+
+.dark .bg-\[\#FFF9F2\] {
+  background-color: #140F0D !important;
+}
+
+.dark .bg-\[\#FFF9F2\]\/90 {
+  background-color: rgba(20, 15, 13, 0.92) !important;
+}
+
+.dark .bg-\[\#FFF9F2\]\/80 {
+  background-color: rgba(20, 15, 13, 0.85) !important;
+}
+
+.dark .bg-\[\#FFF9F2\]\/60 {
+  background-color: rgba(20, 15, 13, 0.65) !important;
+}
+
+.dark .bg-\[\#F4EBDD\] {
+  background-color: #1F1713 !important;
+}
+
+.dark .bg-\[\#F4EBDD\]\/60 {
+  background-color: rgba(31, 23, 19, 0.6) !important;
+}
+
+.dark .bg-\[\#F4EBDD\]\/40 {
+  background-color: rgba(31, 23, 19, 0.4) !important;
+}
+
+.dark .text-\[\#342722\] {
+  color: #FAF5EE !important;
+}
+
+.dark .text-\[\#342722\]\/90 {
+  color: rgba(250, 245, 238, 0.9) !important;
+}
+
+.dark .text-\[\#342722\]\/85 {
+  color: rgba(250, 245, 238, 0.85) !important;
+}
+
+.dark .text-\[\#342722\]\/80 {
+  color: rgba(250, 245, 238, 0.8) !important;
+}
+
+.dark .text-\[\#342722\]\/75 {
+  color: rgba(250, 245, 238, 0.75) !important;
+}
+
+.dark .text-\[\#342722\]\/70 {
+  color: rgba(250, 245, 238, 0.7) !important;
+}
+
+.dark .text-\[\#8C7654\] {
+  color: #D6B878 !important;
+}
+
+.dark .text-\[\#8C6E33\] {
+  color: #E5C98E !important;
+}
+
+.dark .border-\[\#D6B878\]\/40,
+.dark .border-\[\#D6B878\]\/30,
+.dark .border-\[\#D6B878\]\/25,
+.dark .border-\[\#D6B878\]\/20,
+.dark .border-\[\#D6B878\]\/50 {
+  border-color: rgba(214, 184, 120, 0.25) !important;
+}
+
+/* Dark Mode Inputs, Selects, and Textareas */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="tel"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="number"],
+.dark input[type="password"],
+.dark textarea,
+.dark select {
+  background-color: #1A1310 !important;
+  color: #FAF5EE !important;
+  border-color: rgba(214, 184, 120, 0.35) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgba(214, 184, 120, 0.5) !important;
+}
+
+/* Subtle Pearl Shimmer Animation */
+@keyframes pearlFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(2deg);
+  }
+}
+
+.pearl-float {
+  animation: pearlFloat 6s ease-in-out infinite;
+}
+
+@keyframes pearlGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(214, 184, 120, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.95), 0 0 30px rgba(214, 184, 120, 0.5);
+  }
+}
+
+.pearl-glow {
+  animation: pearlGlow 4s ease-in-out infinite;
+}
+
+/* Gold Gradient Accents */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B89A58 0%, #D6B878 50%, #9C7938 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .gold-gradient-text {
+  background: linear-gradient(135deg, #F3DEB0 0%, #E5C98E 50%, #C4A45D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #E6C88B 0%, #D6B878 50%, #B89A58 100%);
+}
+
+.gold-gradient-border {
+  border-image: linear-gradient(to right, #D6B878, #FFF9F2, #D6B878) 1;
+}
+
+.dark .gold-gradient-border {
+  border-image: linear-gradient(to right, #D6B878, #140F0D, #D6B878) 1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF9F2;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #140F0D;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D6B878;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B89A58;
+}
+
+/* Pearl Divider */
+.pearl-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pearl-divider::before,
+.pearl-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(to right, transparent, rgba(214, 184, 120, 0.6), transparent);
+}
+
+/* Luxury Motion Keyframes & Utilities */
+@keyframes goldLuster {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.luster-animated {
+  background: linear-gradient(90deg, #D6B878 0%, #FFF3D6 25%, #B89A58 50%, #FFF3D6 75%, #D6B878 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldLuster 5s ease infinite;
+}
+
+@keyframes lightSweep {
+  0% {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.sheen-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.sheen-overlay::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.sheen-overlay:hover::after {
+  animation: lightSweep 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-5px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(3px) rotate(-1deg);
+  }
+}
+
+.float-gentle {
+  animation: floatGentle 7s ease-in-out infinite;
+}
+
+@keyframes pulseAura {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+.pulse-aura {
+  animation: pulseAura 4s ease-in-out infinite;
+}

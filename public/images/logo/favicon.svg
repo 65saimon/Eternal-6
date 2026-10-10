@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <defs>
+    <linearGradient id="favGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2DEC0" />
+      <stop offset="50%" stop-color="#D6B878" />
+      <stop offset="100%" stop-color="#9C7938" />
+    </linearGradient>
+    <linearGradient id="favPearl" x1="20%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#FDFBF7" />
+      <stop offset="100%" stop-color="#D9CEBC" />
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="#241B16"/>
+  <rect x="2" y="2" width="60" height="60" rx="14" stroke="url(#favGold)" stroke-width="1.2" opacity="0.6"/>
+
+  <g transform="translate(32, 32)">
+    <g stroke="url(#favGold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M 0 -6 C -10 -15, -14 -24, 0 -24 C 14 -24, 10 -15, 0 -6 Z" />
+      <path d="M 0 -6 C -10 -15, -14 -24, 0 -24 C 14 -24, 10 -15, 0 -6 Z" transform="rotate(60)" />
+      <path d="M 0 -6 C -10 -15, -14 -24, 0 -24 C 14 -24, 10 -15, 0 -6 Z" transform="rotate(120)" />
+      <path d="M 0 -6 C -10 -15, -14 -24, 0 -24 C 14 -24, 10 -15, 0 -6 Z" transform="rotate(180)" />
+      <path d="M 0 -6 C -10 -15, -14 -24, 0 -24 C 14 -24, 10 -15, 0 -6 Z" transform="rotate(240)" />
+      <path d="M 0 -6 C -10 -15, -14 -24, 0 -24 C 14 -24, 10 -15, 0 -6 Z" transform="rotate(300)" />
+    </g>
+
+    <!-- Moti Pearl -->
+    <circle cx="0" cy="0" r="5.5" fill="url(#favPearl)"/>
+    <ellipse cx="-1.8" cy="-1.8" rx="1.5" ry="0.9" fill="#FFFFFF" transform="rotate(-30, -1.8, -1.8)"/>
+  </g>
+</svg>

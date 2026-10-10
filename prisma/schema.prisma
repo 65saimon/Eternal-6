@@ -1,0 +1,141 @@
+// Prisma schema for Eternal 6 Boutique
+// Configured with SQLite for seamless local execution and deployment portability
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id               String       @id @default(cuid())
+  sku              String       @unique
+  name             String
+  slug             String       @unique
+  description      String
+  category         String       // "Hijabs", "Accessories", "Gift Sets"
+  collection       String       // "Everyday Elegance", "Premium Chiffon", "Bridal", "The Pearl Edit", etc.
+  price            Float        // In Bangladeshi Taka (BDT, ৳)
+  salePrice        Float?       // Discounted price if on sale
+  material         String       // "Georgette", "Zafran", "Muna Jori", "Silk", etc.
+  careInstructions String?
+  colors           String       // JSON string: e.g. ["#D6B878", "#342722"]
+  variants         String       // JSON string: e.g. [{"id": "v1", "name": "Standard", "color": "Rose", "stock": 15}]
+  stock            Int          @default(10)
+  images           String       // JSON string: array of image URLs (crop, poster, swatches)
+  isPublished      Boolean      @default(true)
+  isFeatured       Boolean      @default(false)
+  isPearlEdit      Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  orderItems       OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id                   String      @id @default(cuid())
+  orderNumber          String      @unique // e.g. "ET6-2026-9481"
+  customerName         String
+  phone                String
+  email                String?
+  district             String      // "Chittagong", "Dhaka", etc.
+  area                 String      // e.g. "GEC Circle", "Nasirabad", "Agrabad"
+  fullAddress          String
+  deliveryInstructions String?
+  paymentMethod        String      // "cod", "bkash", "nagad"
+  paymentStatus        String      @default("pending") // "pending", "paid", "failed", "cancelled"
+  orderStatus          String      @default("pending") // "pending", "confirmed", "processing", "shipped", "delivered", "cancelled"
+  sourceChannel        String      @default("website") // "website", "facebook", "whatsapp", "admin"
+  subtotal             Float
+  deliveryCharge       Float
+  discount             Float       @default(0)
+  total                Float
+  notes                String?
+  paymentTxnId         String?     // bKash/Nagad transaction ID
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  items                OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  productId   String?
+  productName String
+  variantName String?
+  price       Float
+  quantity    Int
+  image       String?
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@map("order_items")
+}
+
+model HandArtService {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  description   String
+  category      String   // "bridal", "arabic", "minimal", "festive", "custom"
+  startingPrice Float?   // e.g. 1500 BDT
+  duration      String   // e.g. "2 - 3 Hours"
+  image         String
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@map("hand_art_services")
+}
+
+model HandArtBooking {
+  id               String   @id @default(cuid())
+  bookingReference String   @unique // e.g. "BK6-7821"
+  customerName     String
+  phone            String
+  email            String?
+  serviceName      String
+  serviceCategory  String
+  eventDate        String
+  eventTime        String
+  locationArea     String
+  designPreference String?
+  referenceImage   String?
+  notes            String?
+  status           String   @default("pending") // "pending", "approved", "awaiting_response", "completed", "cancelled"
+  agreedPrice      Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("hand_art_bookings")
+}
+
+model CustomerReview {
+  id           String   @id @default(cuid())
+  customerName String
+  location     String   @default("Chattogram")
+  comment      String
+  rating       Int      @default(5)
+  isVerified   Boolean  @default(true)
+  isFeatured   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@map("customer_reviews")
+}
+
+model SiteSetting {
+  key         String   @id
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("site_settings")
+}
